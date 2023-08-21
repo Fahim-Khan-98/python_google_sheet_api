@@ -1,0 +1,73 @@
+import datetime
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
+def update_valid_til(imei, new_til):
+
+  SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+  SERVICE_ACCOUNT_FILE = '/content/keys.json'
+  creds = service_account.Credentials.from_service_account_file(
+      SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+  SPREADSHEET_ID = '1z9-MgG3mjqrr2VryW_bJgylPtd_jrF_7jDI7nZkMbIM'
+  RANGE_NAME = 'dupno_crm!A2:CF22'
+
+  service = build('sheets', 'v4', credentials=creds)
+  sheet = service.spreadsheets()
+
+  # Retrieve existing values
+  result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute()
+  values = result.get('values', [])
+
+  # Update the valid TIL for the specified IMEI
+  for row in values:
+    if row[1] == imei:
+      row[8] = new_til
+
+  # Update the spreadsheet with the new values
+  request = sheet.values().update(
+      spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME, valueInputOption='RAW', body={'values': values})
+  response = request.execute()
+
+  return values
+
+def get_value(imei):
+
+  SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+  SERVICE_ACCOUNT_FILE = '/content/keys.json'
+  creds = service_account.Credentials.from_service_account_file(
+      SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+  SPREADSHEET_ID = '1z9-MgG3mjqrr2VryW_bJgylPtd_jrF_7jDI7nZkMbIM'
+  RANGE_NAME = 'dupno_crm!A2:CF22'
+
+  service = build('sheets', 'v4', credentials=creds)
+  sheet = service.spreadsheets()
+
+  # Retrieve existing values
+  result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute()
+  values = result.get('values', [])
+   
+
+
+  # Get the valid TIL for the specified IMEI
+  for row in values:
+    if row[1] == imei:
+      values[1]=imei
+      if row[8]:
+        values[8] = row[8]
+
+
+  return values[8]
+
+if __name__ == '__main__':
+  imei = '3.59E+14'
+  new_til = '23/02/2019'
+  updated_values = update_valid_til(imei, new_til)
+
+  if updated_values:
+    print("Values Updated Successfully")
+  else:
+    print("Values Not Updated")
+
+  valid_til = get_value(imei)
+  print("main Function get Value ",valid_til)

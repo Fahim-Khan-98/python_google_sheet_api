@@ -1,0 +1,144 @@
+
+//Declare a function to validate the entry made by user in UserForm
+function validateEntry(){
+ 
+  var myGooglSheet= SpreadsheetApp.getActiveSpreadsheet(); //declare a variable and set with active google sheet
+
+  var shUserForm    = myGooglSheet.getSheetByName("User Form"); //delcare a variable and set with the User Form worksheet
+
+  //to create the instance of the user-interface environment to use the messagebox features
+  var ui = SpreadsheetApp.getUi();
+    //Assigning white as default background color
+
+  shUserForm.getRange("C6").setBackground('#FFFFFF');
+  shUserForm.getRange("C8").setBackground('#FFFFFF');
+  shUserForm.getRange("C10").setBackground('#FFFFFF');
+  shUserForm.getRange("C12").setBackground('#FFFFFF');
+  shUserForm.getRange("C14").setBackground('#FFFFFF');
+   
+//Validating Employee ID
+  if(shUserForm.getRange("C6").isBlank()==true){
+    ui.alert("Please enter Employee ID.");
+    shUserForm.getRange("C6").activate();
+    shUserForm.getRange("C6").setBackground('#FF0000');
+    return false;
+  }
+ 
+ //Validating Employee Name
+  else if(shUserForm.getRange("C8").isBlank()==true){
+    ui.alert("Please enter Employee Name.");
+    shUserForm.getRange("C8").activate();
+    shUserForm.getRange("C8").setBackground('#FF0000');
+    return false;
+  }
+  //Validating Department
+  else if(shUserForm.getRange("C10").isBlank()==true){
+    ui.alert("Please select Department from the drop-down.")
+    shUserForm.getRange("C10").activate();
+    shUserForm.getRange("C10").setBackground('#FF0000');
+    return false;
+  }
+  //Validating Gender
+  else if(shUserForm.getRange("C12").isBlank()==true){
+    ui.alert("Please select Gender from the drop-down.");
+    shUserForm.getRange("C12").activate();
+    shUserForm.getRange("C12").setBackground('#FF0000');
+    return false;
+  }
+  //Validating Address
+  else if(shUserForm.getRange("C14").isBlank()==true){
+    ui.alert("Please enter address.");
+    shUserForm.getRange("C14").activate();
+    shUserForm.getRange("C14").setBackground('#FF0000');
+    return false;
+  }
+  return true;
+}
+
+
+
+// Function to submit the data to Database sheet
+function submitData() {
+  var myGooglSheet= SpreadsheetApp.getActiveSpreadsheet(); //declare a variable and set with active google sheet
+  var shUserForm= myGooglSheet.getSheetByName("User Form"); //delcare a variable and set with the User Form worksheet
+  var datasheet = myGooglSheet.getSheetByName("Database"); ////delcare a variable and set with the Database worksheet
+  //to create the instance of the user-interface environment to use the messagebox features
+  var ui = SpreadsheetApp.getUi();
+  // Display a dialog box with a title, message, and "Yes" and "No" buttons. The user can also
+  // close the dialog by clicking the close button in its title bar.
+  var response = ui.alert("Submit", 'Do you want to submit the data?',ui.ButtonSet.YES_NO);
+  // Checking the user response and proceed with clearing the form if user selects Yes
+  if (response == ui.Button.NO){
+    return;//exit from this function
+  }
+//Validating the entry. If validation is true then proceed with transferring the data to Database sheet
+ if (validateEntry()==true) {
+    var blankRow=datasheet.getLastRow()+1; //identify the next blank row
+    datasheet.getRange(blankRow, 1).setValue(shUserForm.getRange("C6").getValue()); //Employee ID
+    datasheet.getRange(blankRow, 2).setValue(shUserForm.getRange("C8").getValue()); //Employee Name
+    datasheet.getRange(blankRow, 3).setValue(shUserForm.getRange("C10").getValue()); //  Department
+    datasheet.getRange(blankRow, 4).setValue(shUserForm.getRange("C12").getValue()); // Gender
+    datasheet.getRange(blankRow, 5).setValue(shUserForm.getRange("C14").getValue()); //Address
+    // date function to update the current date and time as submittted on
+    datasheet.getRange(blankRow, 6).setValue(new Date()).setNumberFormat('yyyy-mm-dd h:mm'); //Submitted On
+    //get the email address of the person running the script and update as Submitted By
+    datasheet.getRange(blankRow, 7).setValue(Session.getActiveUser().getEmail()); //Submitted By
+    ui.alert(' "New Data Saved - Emp #' + shUserForm.getRange("C7").getValue() +' "');
+  //Clearnign the data from the Data Entry Form
+
+    shUserForm.getRange("C6").clear();
+    shUserForm.getRange("C8").clear();
+    shUserForm.getRange("C10").clear();
+    shUserForm.getRange("C12").clear();
+    shUserForm.getRange("C14").clear();
+
+ }
+
+}
+
+
+
+//Function to Search the record
+function SearchRecord () {
+  var myGooglSheet= SpreadsheetApp.getActiveSpreadsheet(); //declare a variable and set with active google sheet
+  var shUserForm= myGooglSheet.getSheetByName("User Form"); //delcare a variable and set with the User Form worksheet
+  var datasheet = myGooglSheet.getSheetByName("Database"); ////delcare a variable and set with the Database worksheet
+
+  var str       = shUserForm.getRange("C4").getValue();
+  var values    = datasheet.getDataRange().getValues(); //getting the entire values from the used range and assigning it to values variable
+  var valuesFound=false; //variable to store boolean value
+  for (var i = 0; i < values.length; i++)
+    {
+    var rowValue = values[i]; //declaraing a variable and storing the value
+    //checking the first value of the record is equal to search item
+    if (rowValue[0] == str) {
+      shUserForm.getRange("C6").setValue(rowValue[0]) ;
+      shUserForm.getRange("C8").setValue(rowValue[1]);
+      shUserForm.getRange("C10").setValue(rowValue[2]);
+      shUserForm.getRange("C12").setValue(rowValue[3]);
+      shUserForm.getRange("C14").setValue(rowValue[4]);
+      return; //come out from the search function
+    }
+  }
+
+if(valuesFound==false){
+  //to create the instance of the user-interface environment to use the messagebox features
+  var ui = SpreadsheetApp.getUi();
+  ui.alert("No record found!");
+ }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
