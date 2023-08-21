@@ -1,3 +1,6 @@
+This is the example of python with google sheet integration......i do the work in the following vedio....i have a Google Sheet..i want to update the value using python...just here it is..
+
+
 vedio = https://www.youtube.com/watch?v=4ssigWmExak
 
 
